@@ -12,9 +12,20 @@ let maxMemValueWas = 0;
 const MAX_DATA_POINTS = 60; 
 const CORES = os.cpus().length;
 
+/**
+ * @type {import('.').Stat['cpu'][]}
+ */
 const cpuData = [];
+
+/**
+ * @type {import('.').Stat['mem'][]}
+ */
 const memData = [];
 
+/**
+ * 
+ * @param {(stat: import('.').Stat[]) => {}} callback 
+ */
 function getProcessStats(callback) {
   exec(`ps -eo pid,comm,%cpu,%mem,rss | grep ${TARGET_PROCESS}`, (err, stdout) => {
     if (err || !stdout) {
@@ -37,6 +48,12 @@ function getProcessStats(callback) {
   });
 }
 
+/**
+ * @template {number} T
+ * @param {T[]} data 
+ * @param {string} label 
+ * @param {number} maxValue
+ */
 function renderAsciiLineChart(data, label, maxValue = 100) {
   const height = 10; // Number of rows in the chart
   const width = MAX_DATA_POINTS;  // Number of columns in the chart
@@ -44,7 +61,10 @@ function renderAsciiLineChart(data, label, maxValue = 100) {
   // Normalize data to fit the chart height (scaled to fit in the terminal window)
   const normalizedData = data.map(val => Math.round((val / maxValue) * height));  // Normalize to 10 rows
 
-  // Initialize an empty 2D chart
+  /**
+   * Initialize an empty 2D chart
+   * @type {string[][]}
+   */
   const chart = Array.from({ length: height }, () => Array(width).fill(' '));
 
   normalizedData.forEach((value, index) => {
@@ -67,6 +87,11 @@ function renderAsciiLineChart(data, label, maxValue = 100) {
   term.green(chartStr);
 }
 
+/**
+ * 
+ * @param {import('.').Stat[]} stats 
+ * @returns 
+ */
 function updateDashboard(stats) {
   term.clear();
 
